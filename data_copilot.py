@@ -17,7 +17,7 @@ from openai import OpenAI
 # =========================
 
 client = OpenAI(
-    api_key="YOUR_API_KEY"
+    api_key="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"
 )
 
 # =========================
