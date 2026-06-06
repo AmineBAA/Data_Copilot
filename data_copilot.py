@@ -170,13 +170,4 @@ if df is not None:
 
 eof
 
-### Ce qu'il vous reste à faire :
 
-1. Enregistrez ce code propre à la place de l ancien contenu dans votre fichier `data_copilot.py`.
-2. Assurez-vous d'avoir démarré l'application **Ollama** (l'icône de la tête de lama doit être visible en bas à droite de votre écran Windows, près de l'horloge).
-3. Relancez votre application dans votre terminal de commande Windows :
-   ```cmd
-   streamlit run data_copilot.py
-   ```
-
-Tout devrait fonctionner parfaitement maintenant ! Dites-moi si vous parvenez à générer vos premières requêtes SQL.
