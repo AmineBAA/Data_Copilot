@@ -180,4 +180,4 @@ if df is not None:
     # Fermeture de la connexion à SQLite
     conn.close()
 
-Dites-moi si le bouton de test passe au vert !
+
