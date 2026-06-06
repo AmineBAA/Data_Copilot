@@ -257,12 +257,8 @@ if df is not None:
                     st.info("Astuce : Essayez de formuler votre question plus simplement en mentionnant clairement les noms de colonnes et les valeurs recherchées.")
 
     conn.close()
-```
-eof
 
-### Ce qui change pour vous :
-1. **0% d'erreur de connexion** : L'erreur que vous aviez est définitivement de l'histoire ancienne. Il n'y a plus besoin d'Ollama.
-2. **Setup immédiat** : Vous n'avez qu'à lancer `streamlit run data_copilot.py` dans votre terminal Windows, l'application s'ouvre, vous y glissez votre fichier et cela fonctionne immédiatement.
-3. **Ultra-rapide** : L'exécution prend moins d'une milliseconde car elle s'appuie sur le moteur d'analyse de mots-clés local.
+
+
 
 Dites-moi si l'application s'exécute maintenant correctement sur votre machine !
