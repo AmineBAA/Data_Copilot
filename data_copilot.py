@@ -4,6 +4,10 @@ import sqlite3
 import ollama
 import os
 
+# --- CORRECTIF TECHNIQUE WINDOWS ---
+# Force l'utilisation de l'IP de bouclage locale pour éviter les bugs de résolution 'localhost' de Windows
+os.environ["OLLAMA_HOST"] = "http://127.0.0.1:11434"
+
 # Configuration de la page Streamlit
 st.set_page_config(
     page_title="IA Assistant Excel - SQL Local",
@@ -56,7 +60,7 @@ with st.sidebar:
     st.header("⚙️ Configuration")
     
     # Saisie du nom du fichier Excel
-    file_name = st.text_input("Nom du fichier Excel source", "clients.xlsx")
+    file_name = st.text_input("Nom du fichier Excel source", "info_clients.xlsx")
     
     # Choix du modèle Ollama disponible
     st.subheader("🤖 Modèle NLP Local")
@@ -137,8 +141,9 @@ if 'df' in locals() or 'df' in globals():
                 """
 
                 try:
-                    # Appel de l'API Ollama locale
-                    response = ollama.generate(model=model_name, prompt=prompt)
+                    # Utilisation d'un client explicite pointant sur l'IP locale directe sous Windows
+                    client = ollama.Client(host="http://127.0.0.1:11434")
+                    response = client.generate(model=model_name, prompt=prompt)
                     sql_query = response['response'].strip()
                     
                     # Nettoyage de sécurité si le modèle a ignoré l'instruction d'exclusion de markdown
@@ -180,3 +185,19 @@ if 'df' in locals() or 'df' in globals():
                     
     # Fermeture propre de la connexion à la fermeture du script
     conn.close()
+```
+eof
+
+### Les deux dernières étapes à faire sur votre Windows :
+
+1. **Vérifiez qu'Ollama tourne bien en arrière-plan :**
+   * Allez dans votre menu Démarrer de Windows, tapez **Ollama** et cliquez sur l'application. 
+   * Vérifiez qu'une petite icône en forme de **tête de lama** apparaît bien en bas à droite de votre écran (dans la barre des tâches, près de l'horloge).
+2. **Assurez-vous d'avoir téléchargé le modèle :**
+   * Ouvrez une invite de commande Windows (tapez `cmd` dans la barre de recherche Windows).
+   * Tapez la commande suivante et laissez le téléchargement se terminer s'il n'est pas déjà fait :
+     ```cmd
+     ollama pull qwen2.5-coder:7b
+     ```
+
+Une fois l'icône active et le modèle téléchargé, vous pouvez relancer Streamlit (`streamlit run app.py`). Le correctif IP forcera le dialogue avec Ollama avec succès !
