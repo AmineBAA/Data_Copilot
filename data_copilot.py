@@ -179,20 +179,5 @@ if df is not None:
                     
     # Fermeture de la connexion à SQLite
     conn.close()
-```
-eof
-
-### Ce qu'il vous reste à faire :
-
-1. Enregistrez ce code propre à la place de tout le contenu actuel de votre fichier `data_copilot.py`.
-2. Lancez Ollama sur votre machine, ouvrez votre invite de commande Windows (`cmd`), et assurez-vous de télécharger le modèle léger si ce n'est pas déjà fait :
-   ```cmd
-   ollama pull qwen2.5-coder:1.5b
-   ```
-3. Exécutez l'application localement dans votre terminal Windows :
-   ```cmd
-   streamlit run data_copilot.py
-   ```
-4. Dans l'application, testez la connexion via le bouton de la barre latérale. Si `http://127.0.0.1:11434` ne marche pas, modifiez l'adresse par `http://localhost:11434` et retentez !
 
 Dites-moi si le bouton de test passe au vert !
