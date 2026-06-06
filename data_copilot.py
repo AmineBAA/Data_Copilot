@@ -56,7 +56,7 @@ with st.sidebar:
     st.header("⚙️ Configuration")
     
     # Saisie du nom du fichier Excel
-    file_name = st.text_input("Nom du fichier Excel source", "info_clients.xlsx")
+    file_name = st.text_input("Nom du fichier Excel source", "clients.xlsx")
     
     # Choix du modèle Ollama disponible
     st.subheader("🤖 Modèle NLP Local")
