@@ -63,7 +63,7 @@ with st.sidebar:
     
     # Choix du modèle Ollama disponible
     st.subheader("🤖 Modèle NLP Local")
-    model_name = st.text_input("Modèle Ollama à utiliser", "qwen2.5-coder:7b")
+    model_name = st.text_input("Modèle Ollama à utiliser", "qwen2.5-coder:1.5b")
 
 # Vérification de l'existence du fichier Excel
 df = None
