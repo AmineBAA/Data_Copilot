@@ -4,8 +4,7 @@ import sqlite3
 import ollama
 import os
 
-# --- CORRECTIF TECHNIQUE WINDOWS ---
-# Force l'utilisation de l'IP de bouclage locale pour éviter les bugs de résolution 'localhost' de Windows
+# Force l'utilisation de l'IP de bouclage locale pour éviter les bugs de résolution de Windows
 os.environ["OLLAMA_HOST"] = "http://127.0.0.1:11434"
 
 # Configuration de la page Streamlit
@@ -16,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Style CSS personnalisé pour rendre l'interface professionnelle
+# Style CSS personnalisé pour l'interface
 st.markdown("""
 <style>
     .main-header {
@@ -55,7 +54,7 @@ st.markdown("""
 
 st.markdown("<h1 class='main-header'>📊 Assistant IA - Analyse SQL sur Fichier Client</h1>", unsafe_allow_html=True)
 
-# Sidebar - Configuration et Informations de Partage
+# Sidebar - Configuration
 with st.sidebar:
     st.header("⚙️ Configuration")
     
@@ -65,41 +64,27 @@ with st.sidebar:
     # Choix du modèle Ollama disponible
     st.subheader("🤖 Modèle NLP Local")
     model_name = st.text_input("Modèle Ollama à utiliser", "qwen2.5-coder:7b")
-    
-    st.markdown("---")
-    st.subheader("🌐 Comment partager cette appli ?")
-    st.markdown("""
-    Cette application tourne actuellement sur votre PC. Pour donner un **lien d'accès** à vos collaborateurs :
-    
-    1. **Sur le réseau local (Wi-Fi/Bureau) :**
-       Partagez l'adresse **Network URL** affichée dans votre terminal (ex: `http://192.168.1.50:8501`).
-    
-    2. **Sur Internet (Sécurisé & Gratuit) :**
-       Installez **Ngrok** ou utilisez un **Cloudflare Tunnel** pour générer un lien public temporaire (ex: `https://mon-ia-excel.ngrok-free.app`) qui pointe directement sur votre machine.
-    """)
 
 # Vérification de l'existence du fichier Excel
-if not os.path.exists(file_name):
-    st.warning(f"⚠️ Le fichier `{file_name}` est introuvable dans le dossier actuel de l'application.")
-    st.info("Veuillez déposer votre fichier Excel dans le même dossier que ce script pour commencer.")
-    
-    # Option de secours : Upload manuel pour tester directement
+df = None
+if os.path.exists(file_name):
+    try:
+        df = pd.read_excel(file_name)
+        st.success(f"✅ Fichier `{file_name}` chargé avec succès depuis le dossier local !")
+    except Exception as e:
+        st.error(f"Erreur lors du chargement de l'Excel : {e}")
+else:
+    st.warning(f"⚠️ Le fichier `{file_name}` est introuvable dans le dossier actuel.")
     uploaded_file = st.file_uploader("Ou importez un fichier Excel temporaire ici :", type=["xlsx", "xls"])
     if uploaded_file:
-        df = pd.read_excel(uploaded_file)
-        st.success("Fichier chargé avec succès via l'importateur !")
-    else:
-        st.stop()
-else:
-    # Chargement automatique si le fichier existe
-    @st.cache_data
-    def load_excel_data(path):
-        return pd.read_excel(path)
-    
-    df = load_excel_data(file_name)
+        try:
+            df = pd.read_excel(uploaded_file)
+            st.success("✅ Fichier chargé avec succès via l'importateur !")
+        except Exception as e:
+            st.error(f"Erreur : {e}")
 
 # Si les données sont prêtes
-if 'df' in locals() or 'df' in globals():
+if df is not None:
     # Affichage d'un aperçu des données
     with st.expander("👀 Aperçu du fichier client importé"):
         st.dataframe(df.head(10), use_container_width=True)
@@ -107,7 +92,6 @@ if 'df' in locals() or 'df' in globals():
 
     # Création de la base de données SQL en mémoire temporaire
     conn = sqlite3.connect(":memory:", check_same_thread=False)
-    # On nomme la table "clients" pour faciliter l'écriture des requêtes par le LLM
     df.to_sql("clients", conn, index=False, if_exists="replace")
 
     # Zone de saisie utilisateur
@@ -123,7 +107,6 @@ if 'df' in locals() or 'df' in globals():
             st.error("Veuillez saisir une question avant de valider.")
         else:
             with st.spinner("L'IA locale génère la requête SQL..."):
-                # Préparation du prompt d'instruction pour le modèle Text-to-SQL
                 columns_list = list(df.columns)
                 prompt = f"""
                 You are an expert SQL generator. 
@@ -141,7 +124,7 @@ if 'df' in locals() or 'df' in globals():
                 """
 
                 try:
-                    # Utilisation d'un client explicite pointant sur l'IP locale directe sous Windows
+                    # Utilisation du client Ollama configuré sur l'IP locale directe sous Windows
                     client = ollama.Client(host="http://127.0.0.1:11434")
                     response = client.generate(model=model_name, prompt=prompt)
                     sql_query = response['response'].strip()
@@ -149,7 +132,6 @@ if 'df' in locals() or 'df' in globals():
                     # Nettoyage de sécurité si le modèle a ignoré l'instruction d'exclusion de markdown
                     if sql_query.startswith("```"):
                         lines = sql_query.split("\n")
-                        # Retirer la première ligne (```sql ou ```) et la dernière (```)
                         sql_query = "\n".join([line for line in lines if not line.startswith("```")])
                     
                     sql_query = sql_query.replace("`", "").strip()
@@ -169,7 +151,7 @@ if 'df' in locals() or 'df' in globals():
                     else:
                         st.dataframe(query_result, use_container_width=True)
                         
-                        # Bouton de téléchargement des résultats filtrés
+                        # Bouton de téléchargement
                         csv_data = query_result.to_csv(index=False).encode('utf-8')
                         st.download_button(
                             label="📥 Télécharger ce résultat au format CSV",
@@ -181,23 +163,20 @@ if 'df' in locals() or 'df' in globals():
                 except Exception as e:
                     st.error("❌ Une erreur est survenue lors de la génération ou de l'exécution.")
                     st.write(f"Détails de l'erreur : `{e}`")
-                    st.info("Astuce : Assurez-vous qu'Ollama est bien démarré sur votre PC et que le modèle choisi est téléchargé (`ollama pull qwen2.5-coder:7b`).")
+                    st.info("Astuce : Assurez-vous qu'Ollama est bien démarré sur votre PC et que le modèle choisi est téléchargé.")
                     
-    # Fermeture propre de la connexion à la fermeture du script
+    # Fermeture de la connexion
     conn.close()
 ```
 eof
 
-### Les deux dernières étapes à faire sur votre Windows :
+### Ce qu'il vous reste à faire :
 
-1. **Vérifiez Ollama tourne bien en arrière-plan :**
-   * Allez dans votre menu Démarrer de Windows, tapez **Ollama** et cliquez sur l application. 
-   * Vérifiez qu'une petite icône en forme de **tête de lama** apparaît bien en bas à droite de votre écran (dans la barre des tâches, près de l'horloge).
-2. **Assurez-vous d'avoir téléchargé le modèle :**
-   * Ouvrez une invite de commande Windows (tapez `cmd` dans la barre de recherche Windows).
-   * Tapez la commande suivante et laissez le téléchargement se terminer s'il n'est pas déjà fait :
-     ```cmd
-     ollama pull qwen2.5-coder:7b
-     ```
+1. Enregistrez ce code propre à la place de l'ancien contenu dans votre fichier `data_copilot.py`.
+2. Assurez-vous d'avoir démarré l'application **Ollama** (l'icône de la tête de lama doit être visible en bas à droite de votre écran Windows, près de l'horloge).
+3. Relancez votre application dans votre terminal de commande Windows :
+   ```cmd
+   streamlit run data_copilot.py
+   ```
 
-Une fois l'icône active et le modèle téléchargé, vous pouvez relancer Streamlit (`streamlit run app.py`). Le correctif IP forcera le dialogue avec Ollama avec succès !
+Tout devrait fonctionner parfaitement maintenant ! Dites-moi si vous parvenez à générer vos premières requêtes SQL.
