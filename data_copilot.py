@@ -52,7 +52,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 class='main-header'>📊 Assistant IA - Analyse SQL sur Fichier Client</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='main-header'>📊 Assistant IA - Data Copilot</h1>", unsafe_allow_html=True)
 
 # Sidebar - Configuration
 with st.sidebar:
