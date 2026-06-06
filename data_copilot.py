@@ -191,7 +191,7 @@ eof
 ### Les deux dernières étapes à faire sur votre Windows :
 
 1. **Vérifiez Ollama tourne bien en arrière-plan :**
-   * Allez dans votre menu Démarrer de Windows, tapez **Ollama** et cliquez sur l'application. 
+   * Allez dans votre menu Démarrer de Windows, tapez **Ollama** et cliquez sur l application. 
    * Vérifiez qu'une petite icône en forme de **tête de lama** apparaît bien en bas à droite de votre écran (dans la barre des tâches, près de l'horloge).
 2. **Assurez-vous d'avoir téléchargé le modèle :**
    * Ouvrez une invite de commande Windows (tapez `cmd` dans la barre de recherche Windows).
