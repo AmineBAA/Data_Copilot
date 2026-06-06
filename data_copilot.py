@@ -167,7 +167,7 @@ if df is not None:
                     
     # Fermeture de la connexion
     conn.close()
-```
+
 eof
 
 ### Ce qu'il vous reste à faire :
